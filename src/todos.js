@@ -2,6 +2,7 @@ const Router = require("koa-router")
 
 const router = Router({ prefix: "/todos" })
 const { getDB } = require("./database")
+const { ObjectId } = require("mongodb")
 
 router
     .get("/", listTodos)
@@ -38,11 +39,19 @@ async function createTodo (ctx) {
 }
 
 async function deleteTodo (ctx) {
-    // TODO
+    const id = ctx.params.id
+    await getDB().collection("todos").deleteOne({ _id: ObjectId(id) })
+    ctx.body = { id }
 }
 
 async function updateTodo (ctx) {
-    // TODO
+    const id = ctx.params.id
+    let todo = await getDB().collection("todos").findOne({ _id: ObjectId(id) })
+    todo = ctx.request.body;
+    delete todo.createdAt;
+    delete todo.updatedAt;
+    getDB().collection("todos").updateOne({ _id: ObjectId(id) }, { $set: todo })
+    ctx.body = { id }
 }
 
 module.exports = router
