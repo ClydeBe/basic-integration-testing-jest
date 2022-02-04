@@ -83,7 +83,7 @@ describe('POST /todo', () => {
     })
 })
 
-describe("DELETE /posts/id", () => {
+describe("DELETE /todos/id", () => {
     test("should respond with correct values", async () => {
         const db = getDB();
         const todo = await db.collection("todos").findOne({});
@@ -98,6 +98,17 @@ describe("DELETE /posts/id", () => {
         // Verify that the todo was deleted
         const todoAfterDelete = await db.collection("todos").findOne({ _id: ObjectId(id) });
         expect(todoAfterDelete).toBe(null);
+    })
+});
+
+describe("DELETE /todos/id", () => {
+    test("should throw Invalid id", async () => {
+        const id = "123";
+        const response = await request.del(`${baseUrl}/${id}`);
+
+        expect(response.status).toBe(400);
+        expect(response.type).toBe("application/json");
+        expect(response.body.errorMsg).toEqual("Invalid id");
     })
 });
 
@@ -117,5 +128,29 @@ describe("Update /todos/id", () => {
         // Verify that the todo was updated
         const todoAfterUpdate = await db.collection("todos").findOne({ _id: ObjectId(id) });
         expect(todoAfterUpdate.title).toEqual(payload.title);
+    })
+});
+
+describe("Update /todos/id", () => {
+    test("should throw Invalid id", async () => {
+        const id = "123";
+        const payload = { title: "Todo 100" };
+        const response = await request.put(`${baseUrl}/${id}`).send(payload);
+
+        expect(response.status).toBe(400);
+        expect(response.type).toBe("application/json");
+        expect(response.body.errorMsg).toEqual("Invalid id");
+    })
+});
+
+describe("Update /todos/id", () => {
+    test("should throw No record correspondint to given id was found", async () => {
+        const id = "61f41564a7c02cc39f4354af";
+        const payload = { title: "Todo 100" };
+        const response = await request.put(`${baseUrl}/${id}`).send(payload);
+
+        expect(response.status).toBe(400);
+        expect(response.type).toBe("application/json");
+        expect(response.body.errorMsg).toEqual("No record correspondint to given id was found");
     })
 });
