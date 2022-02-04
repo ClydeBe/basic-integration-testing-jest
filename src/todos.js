@@ -38,20 +38,38 @@ async function createTodo (ctx) {
     }
 }
 
-async function deleteTodo (ctx) {
+async function deleteTodo(ctx) {
     const id = ctx.params.id
-    await getDB().collection("todos").deleteOne({ _id: ObjectId(id) })
-    ctx.body = { id }
+    if (!ObjectId.isValid(id)) {
+        ctx.status = 400;
+        ctx.body = { errorMsg: "Invalid id" };
+    }
+    else {
+        await getDB().collection("todos").deleteOne({ _id: ObjectId(id) })
+        ctx.body = { id }
+    }
 }
 
 async function updateTodo (ctx) {
     const id = ctx.params.id
-    let todo = await getDB().collection("todos").findOne({ _id: ObjectId(id) })
-    todo = ctx.request.body;
-    delete todo.createdAt;
-    delete todo.updatedAt;
-    getDB().collection("todos").updateOne({ _id: ObjectId(id) }, { $set: todo })
-    ctx.body = { id }
+    if (!ObjectId.isValid(id)) {
+        ctx.status = 400;
+        ctx.body = { errorMsg: "Invalid id" };
+    }
+    else {
+        let todo = await getDB().collection("todos").findOne({ _id: ObjectId(id) })
+        if (todo == null || todo == undefined) {
+            ctx.status = 400;
+            ctx.body = { errorMsg: "No record correspondint to given id was found" };
+        }
+        else {
+            todo = ctx.request.body;
+            delete todo.createdAt;
+            delete todo.updatedAt;
+            getDB().collection("todos").updateOne({ _id: ObjectId(id) }, { $set: todo })
+            ctx.body = { id }
+        }
+    }
 }
 
 module.exports = router
