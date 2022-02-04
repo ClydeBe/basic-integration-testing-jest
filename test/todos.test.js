@@ -84,6 +84,15 @@ describe('POST /todo', () => {
 })
 
 describe("DELETE /todos/id", () => {
+    test("should returns No record correspondint to given id was found", async () => {
+        const response = await request.del(`${baseUrl}/000000000000000000000000`);
+        expect(response.status).toBe(400);
+        expect(response.type).toBe("application/json");
+        expect(response.body.errorMsg).toEqual("No record correspondint to given id was found");
+    })
+});
+
+describe("DELETE /todos/id", () => {
     test("should respond with correct values", async () => {
         const db = getDB();
         const todo = await db.collection("todos").findOne({});

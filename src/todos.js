@@ -45,8 +45,14 @@ async function deleteTodo(ctx) {
         ctx.body = { errorMsg: "Invalid id" };
     }
     else {
-        await getDB().collection("todos").deleteOne({ _id: ObjectId(id) })
-        ctx.body = { id }
+        let todo = await getDB().collection("todos").findOne({ _id: ObjectId(id) })
+        if (todo == null) {
+            ctx.status = 400;
+            ctx.body = { errorMsg: "No record correspondint to given id was found" };
+        } else {
+            await getDB().collection("todos").deleteOne({ _id: ObjectId(id) })
+            ctx.body = { id }
+        }
     }
 }
 
